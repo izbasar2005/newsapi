@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"newsapi/database"
@@ -8,14 +9,36 @@ import (
 	"time"
 )
 
-// Барлық жаңалықтарды алу
 func GetNews(c *gin.Context) {
 	var news []model.News
-	database.DB.Preload("Category").Find(&news)
+
+	limit := 10
+	page := 1
+	categoryID := c.Query("category_id")
+
+	if l := c.Query("limit"); l != "" {
+		fmt.Sscanf(l, "%d", &limit)
+	}
+	if p := c.Query("page"); p != "" {
+		fmt.Sscanf(p, "%d", &page)
+	}
+
+	offset := (page - 1) * limit
+
+	query := database.DB.Preload("Category").Limit(limit).Offset(offset)
+
+	if categoryID != "" {
+		query = query.Where("category_id = ?", categoryID)
+	}
+
+	if err := query.Find(&news).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Жаңалықтарды жүктеу қатесі"})
+		return
+	}
+
 	c.JSON(http.StatusOK, news)
 }
 
-// Жаңа жаңалық қосу
 func CreateNews(c *gin.Context) {
 	var news model.News
 	if err := c.ShouldBindJSON(&news); err != nil {
@@ -23,7 +46,6 @@ func CreateNews(c *gin.Context) {
 		return
 	}
 
-	// Установка текущего времени для CreatedAt и UpdatedAt
 	news.CreatedAt = time.Now()
 	news.UpdatedAt = time.Now()
 
@@ -35,7 +57,6 @@ func CreateNews(c *gin.Context) {
 	c.JSON(http.StatusCreated, news)
 }
 
-// Жаңалықты ID бойынша алу
 func GetNewsByID(c *gin.Context) {
 	id := c.Param("id")
 	var news model.News
@@ -46,7 +67,6 @@ func GetNewsByID(c *gin.Context) {
 	c.JSON(http.StatusOK, news)
 }
 
-// Жаңалықты жаңарту
 func UpdateNews(c *gin.Context) {
 	id := c.Param("id")
 	var news model.News
@@ -64,7 +84,7 @@ func UpdateNews(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Жаңарту қатесі"})
 		return
 	}
-	// Обновляем данные новости (GORM автоматически обновит `UpdatedAt`)
+
 	if err := database.DB.Save(&news).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update news"})
 		return
@@ -73,7 +93,6 @@ func UpdateNews(c *gin.Context) {
 	c.JSON(http.StatusOK, news)
 }
 
-// Жаңалықты жою
 func DeleteNews(c *gin.Context) {
 	id := c.Param("id")
 	if err := database.DB.Delete(&model.News{}, id).Error; err != nil {

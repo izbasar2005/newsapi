@@ -10,6 +10,6 @@ type News struct {
 	Description string    `json:"description"`
 	CategoryID  uint      `json:"category_id"`
 	Category    Category  `gorm:"foreignKey:CategoryID"`
-	CreatedAt   time.Time `json:"created_at"` // Поле для даты и времени
+	CreatedAt   time.Time `json:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at"  gorm:"autoUpdateTime"`
 }

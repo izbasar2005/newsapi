@@ -7,7 +7,6 @@ import (
 	"newsapi/model"
 )
 
-// Барлық категорияларды алу
 func GetCategories(c *gin.Context) {
 	var categories []model.Category
 	if err := database.DB.Find(&categories).Error; err != nil {
@@ -17,7 +16,6 @@ func GetCategories(c *gin.Context) {
 	c.JSON(http.StatusOK, categories)
 }
 
-// Жаңа категория қосу
 func CreateCategory(c *gin.Context) {
 	var category model.Category
 	if err := c.ShouldBindJSON(&category); err != nil {
@@ -33,7 +31,6 @@ func CreateCategory(c *gin.Context) {
 	c.JSON(http.StatusCreated, category)
 }
 
-// Категорияны ID бойынша алу
 func GetCategoryByID(c *gin.Context) {
 	id := c.Param("id")
 	var category model.Category
@@ -44,7 +41,6 @@ func GetCategoryByID(c *gin.Context) {
 	c.JSON(http.StatusOK, category)
 }
 
-// Категорияны жаңарту
 func UpdateCategory(c *gin.Context) {
 	id := c.Param("id")
 	var category model.Category
@@ -66,7 +62,6 @@ func UpdateCategory(c *gin.Context) {
 	c.JSON(http.StatusOK, category)
 }
 
-// Категорияны жою
 func DeleteCategory(c *gin.Context) {
 	id := c.Param("id")
 	if err := database.DB.Delete(&model.Category{}, id).Error; err != nil {
