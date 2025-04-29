@@ -55,7 +55,7 @@ func Login(c *gin.Context, db *gorm.DB) {
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"username": user.Username,
-		"exp":      time.Now().Add(time.Hour * 72).Unix(), // 3 күн жарамды
+		"exp":      time.Now().Add(time.Hour * 72).Unix(),
 	})
 
 	tokenString, err := token.SignedString(jwtKey)
@@ -65,4 +65,5 @@ func Login(c *gin.Context, db *gorm.DB) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"token": tokenString})
+
 }

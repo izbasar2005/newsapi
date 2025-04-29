@@ -5,14 +5,39 @@ import (
 	"net/http"
 	"newsapi/database"
 	"newsapi/model"
+	"strconv"
 )
 
 func GetCategories(c *gin.Context) {
 	var categories []model.Category
-	if err := database.DB.Find(&categories).Error; err != nil {
+
+	// Устанавливаем значения по умолчанию для limit и page
+	limit := 10
+	page := 1
+
+	// Получаем параметры из запроса и парсим их
+	if l := c.DefaultQuery("limit", "10"); l != "" {
+		if parsedLimit, err := strconv.Atoi(l); err == nil && parsedLimit > 0 {
+			limit = parsedLimit
+		}
+	}
+
+	if p := c.DefaultQuery("page", "1"); p != "" {
+		if parsedPage, err := strconv.Atoi(p); err == nil && parsedPage > 0 {
+			page = parsedPage
+		}
+	}
+
+	// Вычисляем offset для пагинации
+	offset := (page - 1) * limit
+
+	// Выполняем запрос с пагинацией
+	if err := database.DB.Limit(limit).Offset(offset).Find(&categories).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Қате шықты"})
 		return
 	}
+
+	// Возвращаем результат
 	c.JSON(http.StatusOK, categories)
 }
 

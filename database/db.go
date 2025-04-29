@@ -1,10 +1,10 @@
 package database
 
 import (
+	_ "github.com/lib/pq"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"log"
-	"newsapi/model"
 )
 
 var DB *gorm.DB
@@ -18,7 +18,6 @@ func InitDB() {
 		log.Fatal("❌ DB қосылмады:", err)
 	}
 
-	DB.AutoMigrate(&model.News{}, &model.Category{}, &model.User{})
 	log.Println("✅ DB дайын")
 }
 func GetDB() *gorm.DB {
