@@ -6,9 +6,12 @@ import (
 	"newsapi/database"
 	"newsapi/handler"
 	"newsapi/middleware"
+
+	_ "github.com/lib/pq"
 )
 
 func main() {
+
 	database.InitDB()
 	db := database.GetDB()
 
@@ -31,6 +34,11 @@ func main() {
 	authorized.GET("/news/:id", handler.GetNewsByID)
 	authorized.PUT("/news/:id", handler.UpdateNews)
 	authorized.DELETE("/news/:id", handler.DeleteNews)
+
+	authorized.GET("/users", handler.GetUsers)
+	authorized.GET("/users/:id", handler.GetUserByID)
+	authorized.PUT("/users/:id", handler.UpdateUser)
+	authorized.DELETE("/users/:id", handler.DeleteUser)
 
 	r.Run(":8080")
 }
