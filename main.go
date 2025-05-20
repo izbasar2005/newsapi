@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"newsapi/auth"
 	"newsapi/database"
@@ -11,11 +12,18 @@ import (
 )
 
 func main() {
-
 	database.InitDB()
 	db := database.GetDB()
 
 	r := gin.Default()
+
+	r.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"http://localhost:5173"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+	}))
 
 	r.POST("/register", func(c *gin.Context) { auth.Register(c, db) })
 	r.POST("/login", func(c *gin.Context) { auth.Login(c, db) })
@@ -29,7 +37,7 @@ func main() {
 	authorized.PUT("/categories/:id", handler.UpdateCategory)
 	authorized.DELETE("/categories/:id", handler.DeleteCategory)
 
-	authorized.GET("/news", handler.GetNews)
+	r.GET("/news", handler.GetNews)
 	authorized.POST("/news", handler.CreateNews)
 	authorized.GET("/news/:id", handler.GetNewsByID)
 	authorized.PUT("/news/:id", handler.UpdateNews)
