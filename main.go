@@ -25,28 +25,41 @@ func main() {
 		AllowCredentials: true,
 	}))
 
+	r.Static("/uploads", "./uploads")
+
+	// Тіркелу және кіру
 	r.POST("/register", func(c *gin.Context) { auth.Register(c, db) })
 	r.POST("/login", func(c *gin.Context) { auth.Login(c, db) })
 
+	// Авторизация қажет болатын маршруттар
 	authorized := r.Group("/")
 	authorized.Use(middleware.AuthMiddleware())
 
+	// Барлық қолданушыларға (авторизациямен) рұқсат
 	authorized.GET("/categories", handler.GetCategories)
-	authorized.POST("/categories", handler.CreateCategory)
 	authorized.GET("/categories/:id", handler.GetCategoryByID)
-	authorized.PUT("/categories/:id", handler.UpdateCategory)
-	authorized.DELETE("/categories/:id", handler.DeleteCategory)
-
-	r.GET("/news", handler.GetNews)
-	authorized.POST("/news", handler.CreateNews)
+	authorized.GET("/news", handler.GetNews)
 	authorized.GET("/news/:id", handler.GetNewsByID)
-	authorized.PUT("/news/:id", handler.UpdateNews)
-	authorized.DELETE("/news/:id", handler.DeleteNews)
-
 	authorized.GET("/users", handler.GetUsers)
 	authorized.GET("/users/:id", handler.GetUserByID)
-	authorized.PUT("/users/:id", handler.UpdateUser)
-	authorized.DELETE("/users/:id", handler.DeleteUser)
+
+	authorized.GET("/profile", handler.GetProfile)
+	authorized.PUT("/profile", handler.UpdateProfile)
+
+	// Тек admin рөлі барларға арналған маршруттар
+	admin := authorized.Group("/")
+	admin.Use(middleware.AdminOnlyMiddleware())
+
+	admin.POST("/categories", handler.CreateCategory)
+	admin.PUT("/categories/:id", handler.UpdateCategory)
+	admin.DELETE("/categories/:id", handler.DeleteCategory)
+
+	admin.POST("/news", handler.CreateNews)
+	admin.PUT("/news/:id", handler.UpdateNews)
+	admin.DELETE("/news/:id", handler.DeleteNews)
+
+	admin.PUT("/users/:id", handler.UpdateUser)
+	admin.DELETE("/users/:id", handler.DeleteUser)
 
 	r.Run(":8080")
 }

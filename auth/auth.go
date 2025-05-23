@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v4"
 	"golang.org/x/crypto/bcrypt"
@@ -19,13 +20,21 @@ func Register(c *gin.Context, db *gorm.DB) {
 		return
 	}
 
+	if input.Role == "" {
+		input.Role = "user" // Әдепкі роль
+	}
+
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(input.Password), bcrypt.DefaultCost)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Password hashing error"})
 		return
 	}
 
-	user := model.User{Username: input.Username, Password: string(hashedPassword)}
+	user := model.User{
+		Username: input.Username,
+		Password: string(hashedPassword),
+		Role:     input.Role,
+	}
 
 	if err := db.Create(&user).Error; err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Username already exists"})
@@ -53,8 +62,11 @@ func Login(c *gin.Context, db *gorm.DB) {
 		return
 	}
 
+	// Рольді токенге қосу
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"username": user.Username,
+		"role":     user.Role,
+		"userID":   fmt.Sprintf("%d", user.ID), // uint → string
 		"exp":      time.Now().Add(time.Hour * 72).Unix(),
 	})
 
@@ -64,6 +76,8 @@ func Login(c *gin.Context, db *gorm.DB) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"token": tokenString})
-
+	c.JSON(http.StatusOK, gin.H{
+		"token": tokenString,
+		"role":  user.Role,
+	})
 }

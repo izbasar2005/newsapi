@@ -10,6 +10,7 @@ type News struct {
 	Content    string    `json:"content"`
 	CategoryID uint      `json:"category_id"`
 	Category   Category  `gorm:"foreignKey:CategoryID"`
+	ImageURL   string    `json:"image_url"`
 	CreatedAt  time.Time `json:"created_at"`
 	UpdatedAt  time.Time `json:"updated_at"  gorm:"autoUpdateTime"`
 }

@@ -2,6 +2,7 @@ CREATE TABLE users (
                        id SERIAL PRIMARY KEY,
                        username TEXT UNIQUE NOT NULL,
                        password TEXT NOT NULL
+
 );
 
 CREATE TABLE categories (
@@ -17,3 +18,4 @@ CREATE TABLE news (
 );
 ALTER TABLE news ADD COLUMN created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
 ALTER TABLE news ADD COLUMN updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+

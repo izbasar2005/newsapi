@@ -2,6 +2,10 @@
 <project version="4">
   <component name="SqlDialectMappings">
     <file url="file://$PROJECT_DIR$/migrations/20250423093114_init.down.sql" dialect="PostgreSQL" />
+    <file url="file://$PROJECT_DIR$/migrations/20250423093114_init.downNews.sql" dialect="GenericSQL" />
+    <file url="file://$PROJECT_DIR$/migrations/20250423093114_init.downUser.sql" dialect="PostgreSQL" />
     <file url="file://$PROJECT_DIR$/migrations/20250423093114_init.up.sql" dialect="PostgreSQL" />
+    <file url="file://$PROJECT_DIR$/migrations/20250423093114_init.upNews.sql" dialect="PostgreSQL" />
+    <file url="file://$PROJECT_DIR$/migrations/20250423093114_init.upUser.sql" dialect="PostgreSQL" />
   </component>
 </project>
